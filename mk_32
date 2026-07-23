@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export NDK_CC=/usr/lib/android-sdk/ndk/28.0.13004108/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi34-clang
+TGT=/vault/prj/security/katzenpost/clients/_android/data/adb/modules/katzenpost/kpclientd
+
+pushd /vault/prj/security/katzenpost/src/katzenpost/ >/dev/null 2>&1
+
+rm -f ${TGT}
+CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 CC=$NDK_CC \
+go build -a -o ${TGT} ./cmd/kpclientd
+
+popd >/dev/null 2>&1
+
+tar cvzf kpclientd-armv7a-android.tgz -C data .
