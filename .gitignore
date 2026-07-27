@@ -1,3 +1,2 @@
-/data/adb/modules/katzenpost/kpclientd
-/system/bin/kpclientd
 /kpclientd-*-android.tgz
+/data-*/adb/modules/kpclientd/kpclientd
