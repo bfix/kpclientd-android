@@ -6,7 +6,7 @@ if [ ! -d ${TGT} ]; then
     exit 1
 fi
 
-ARCH=${2:-arm64}
+ARCH=${2:-amd64}
 BASE=/vault/prj/security/katzenpost/clients/_android/data-${ARCH}
 if [ ! -d ${BASE} ]; then
     echo "Unknown target architecture '${ARCH}'."
