@@ -66,6 +66,7 @@
             android:layout_marginEnd="8dp"
             android:background="#2F41B5"
             android:scaleType="centerInside"
+            app:tint="@color/btn_selector"
             app:cornerRadius="30dp"
             app:srcCompat="@android:drawable/ic_media_play" />
 
@@ -78,6 +79,7 @@
             android:layout_marginTop="32dp"
             android:background="#2F41B5"
             android:scaleType="centerInside"
+            app:tint="@color/btn_selector"
             app:cornerRadius="30dp"
             app:srcCompat="@android:drawable/ic_media_pause" />
 

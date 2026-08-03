@@ -36,8 +36,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle BundleSavedInstanceState) {
         super.onCreate(BundleSavedInstanceState);
 
+        // copy assets to local folder
         copyAssetToStorage("kpclientd");
-        copyAssetToStorage("client.toml");
+        File outFile = new File("/data/local/tmp/client.toml");
+        if (outFile.exists()) {
+            // if custom config exists, use that instead of the built-in
+            copyAssetToStorage("/data/local/tmp/client.toml");
+        } else {
+            copyAssetToStorage("client.toml");
+        }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -126,12 +133,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void copyAssetToStorage(String name) {
-        File outFile = new File(getFilesDir(), name);
-        if (outFile.exists()) {
-            return;
+        File fOut;
+        if (name.startsWith("/")) {
+            fOut = new File(name);
+        } else {
+            fOut = new File(getFilesDir(), name);
         }
         try (InputStream in = getAssets().open(name);
-             OutputStream out = new FileOutputStream(outFile)) {
+             OutputStream out = new FileOutputStream(fOut)) {
             byte[] buffer = new byte[1024];
             int read;
             while ((read = in.read(buffer)) != -1) {
