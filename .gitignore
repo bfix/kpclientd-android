@@ -1,2 +1,10 @@
-/kpclientd-*-android.tgz
-/data-*/adb/modules/kpclientd/kpclientd
+/.vscode/
+.gradle
+.idea
+gradle
+build
+/work/
+/apk/app/release
+/apk/app/debug
+/apk/gradlew*
+/apk/deploy

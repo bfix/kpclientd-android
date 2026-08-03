@@ -7,54 +7,63 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.hoi_polloi.kpdaemon.databinding.ActivityMainBinding;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnStart;
-    private Button btnStop;
-    private TextView textTitle;
-    private TextView textStatus;
+    private boolean isRunning = false;
 
+    private ActivityMainBinding binding;
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private Runnable statusCheckRunnable;
-    private static final int CHECK_INTERVAL_MS = 10000; // 10 Sekunden
+    private Runnable statusCheck;
+    private Process serverProcess = null;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
 
     @Override
     protected void onCreate(Bundle BundleSavedInstanceState) {
         super.onCreate(BundleSavedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        btnStart = findViewById(R.id.btn_start);
-        btnStop = findViewById(R.id.btn_stop);
-        textStatus = findViewById(R.id.textStatus);
+        copyAssetToStorage("kpclientd");
+        copyAssetToStorage("client.toml");
 
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Führt den Start-Befehl aus
-                executeRootCommand("cd /data/apk/modules/kpclientd && ./kpclientd -c client.toml > /data/local/tmp/kpclientd.log 2>&1 &");
-                checkDaemonStatus();
-            }
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, windowInsets) -> {
+            androidx.core.graphics.Insets systemBars = windowInsets.getInsets(
+                    androidx.core.view.WindowInsetsCompat.Type.systemBars()
+            );
+            binding.appBar.setPadding(0, systemBars.top, 0, 0);
+            binding.buttons.setPadding(0, 0, 0, systemBars.bottom);
+            return windowInsets;
         });
 
-        btnStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Beendet den Daemon-Prozess
-                executeRootCommand("pkill -f kpclientd");
-                checkDaemonStatus();
-            }
-        });
+        binding.btnStart.setOnClickListener(v -> startServer());
+        binding.btnStop.setOnClickListener(v -> stopServer());
 
-        statusCheckRunnable = new Runnable() {
+        statusCheck = new Runnable() {
             @Override
             public void run() {
-                checkDaemonStatus();
-                handler.postDelayed(this, CHECK_INTERVAL_MS);
+                isRunning = checkDaemonStatus();
+                handler.postDelayed(this, 10000);
             }
         };
     }
@@ -62,81 +71,71 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        handler.post(statusCheckRunnable);
+        handler.post(statusCheck);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        handler.removeCallbacks(statusCheckRunnable);
+        handler.removeCallbacks(statusCheck);
     }
 
-    /**
-     * (1) Prüft den Status des Prozesses über eine Root-Shell.
-     */
-    private void checkDaemonStatus() {
-        boolean isRunning = isProcessRunningRoot("kpclientd");
-
-        if (isRunning) {
-            textStatus.setText(R.string.daemon_on);
-            btnStart.setEnabled(false);  // (2)
-            btnStop.setEnabled(true);    // (2)
-        } else {
-            textStatus.setText(R.string.daemon_off);
-            btnStart.setEnabled(true);   // (3)
-            btnStop.setEnabled(false);  // (3)
+    private void startServer() {
+        if (serverProcess != null) {
+            return;
         }
-    }
+        executor.execute(() -> {
+            try {
+                String binaryPath = new File(getFilesDir(), "kpclientd").getAbsolutePath();
+                String configPath = new File(getFilesDir(), "client.toml").getAbsolutePath();
+                Runtime.getRuntime().exec("chmod 755 " + binaryPath).waitFor();
+                serverProcess = new ProcessBuilder(binaryPath, "-c", configPath).start();
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server started...", Toast.LENGTH_SHORT).show());
 
-    /**
-     * Führt eine Prozessprüfung mit Root-Rechten durch.
-     */
-    private boolean isProcessRunningRoot(String processName) {
-        boolean running = false;
-        try {
-            // Öffnet eine interaktive Root-Shell
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            // ps -A listet alle Prozesse im System auf
-            os.writeBytes("ps -A\n");
-            os.writeBytes("exit\n");
-            os.flush();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains(processName)) {
-                    running = true;
-                    break;
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to start server!", Toast.LENGTH_SHORT).show());
             }
-
-            reader.close();
-            os.close();
-            process.waitFor();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return running;
+        });
     }
 
-    /**
-     * Universelle Hilfsmethode, um einen einzelnen Befehl als Root auszuführen.
-     */
-    private void executeRootCommand(String command) {
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+    private void stopServer() {
+        if (serverProcess != null) {
+            serverProcess.destroy();
+            serverProcess = null;
+            Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-            os.writeBytes(command + "\n");
-            os.writeBytes("exit\n");
-            os.flush();
+    private boolean checkDaemonStatus() {
+        if (isRunning) {
+            binding.textStatus.setText(R.string.daemon_on);
+            binding.btnStart.setEnabled(false);
+            binding.btnStop.setEnabled(true);
+            return true;
+        }
+        binding.textStatus.setText(R.string.daemon_off);
+        binding.btnStart.setEnabled(true);
+        binding.btnStop.setEnabled(false);
+        return false;
+    }
 
-            os.close();
-            process.waitFor();
+    private void copyAssetToStorage(String name) {
+        File outFile = new File(getFilesDir(), name);
+        if (outFile.exists()) {
+            return;
+        }
+        try (InputStream in = getAssets().open(name);
+             OutputStream out = new FileOutputStream(outFile)) {
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            out.flush();
         } catch (Exception e) {
             e.printStackTrace();
+            Toast.makeText(this, "Failed to prepare resources!", Toast.LENGTH_LONG).show();
         }
     }
 }
