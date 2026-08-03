@@ -20,6 +20,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,9 +29,14 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Runnable statusCheck;
     private Process serverProcess = null;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private boolean isRunning;
+
+    private boolean stateLast = false;
+    private long sinceLast = -1L;
 
 
     @Override
@@ -67,8 +74,20 @@ public class MainActivity extends AppCompatActivity {
         statusCheck = new Runnable() {
             @Override
             public void run() {
-                checkDaemonStatus();
-                handler.postDelayed(this, 10000);
+                boolean currState = checkDaemonStatus();
+                if (currState != stateLast) {
+                    stateLast = currState;
+                    sinceLast = new Date().getTime()/1000;
+                }
+                if (sinceLast > 0) {
+                    long span = new Date().getTime() / 1000 - sinceLast;
+                    int hrs = (int) (span / 3600);
+                    int mins = (int) (span % 3600) / 60;
+                    binding.elapsed.setText(String.format(Locale.ENGLISH, "%d:%02d", hrs, mins));
+                } else {
+                    binding.elapsed.setText("");
+                }
+                handler.postDelayed(this, 1000);
             }
         };
     }
@@ -103,10 +122,12 @@ public class MainActivity extends AppCompatActivity {
                 String cmd = binaryPath + " -c " + configPath + " >/data/local/tmp/kpclientd.log 2>&1";
                 serverProcess = new ProcessBuilder("su", "-c", cmd).start();
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server started...", Toast.LENGTH_SHORT).show());
+                isRunning = true;
 
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to start server!", Toast.LENGTH_SHORT).show());
+                isRunning = false;
             }
         });
     }
@@ -117,10 +138,11 @@ public class MainActivity extends AppCompatActivity {
             serverProcess = null;
             Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
         }
+        isRunning = false;
     }
 
     private boolean checkDaemonStatus() {
-        if (serverProcess != null) {
+        if (isRunning) {
             binding.textStatus.setText(R.string.daemon_on);
             binding.btnStart.setEnabled(false);
             binding.btnStop.setEnabled(true);
@@ -129,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         binding.textStatus.setText(R.string.daemon_off);
         binding.btnStart.setEnabled(true);
         binding.btnStop.setEnabled(false);
+        sinceLast = -1L;
         return false;
     }
 
