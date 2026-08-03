@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 String binaryPath = new File(getFilesDir(), "kpclientd").getAbsolutePath();
                 String configPath = new File(getFilesDir(), "client.toml").getAbsolutePath();
                 Runtime.getRuntime().exec("chmod 755 " + binaryPath).waitFor();
-                String cmd = binaryPath + " -c " + configPath + " >/data/local/tmp/kpclientd.log 2>&1";
+                String cmd = binaryPath + " -c " + configPath + " >/data/local/tmp/kpclientd.log 2>&1 &";
                 serverProcess = new ProcessBuilder("su", "-c", cmd).start();
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server started...", Toast.LENGTH_SHORT).show());
                 isRunning = true;
@@ -136,9 +136,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void stopServer() {
         if (serverProcess != null) {
-            serverProcess.destroy();
-            serverProcess = null;
-            Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
+            try {
+                Runtime.getRuntime().exec(new String[]{"su", "-c", "killall kpclientd"});
+                serverProcess.destroy();
+                serverProcess = null;
+                Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to stop server", Toast.LENGTH_SHORT).show();
+            }
         }
         isRunning = false;
     }
