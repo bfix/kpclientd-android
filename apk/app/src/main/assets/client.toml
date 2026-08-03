@@ -3,7 +3,7 @@ WireKEMScheme = "KYBER768-X25519"
 
 [Listen]
   [Listen.Unix]
-    Address = "@katzenpost"
+    Address = "/data/local/tmp/kpclientd.sock"
 
 [Logging]
   Disable = false
