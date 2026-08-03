@@ -44,13 +44,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(BundleSavedInstanceState);
 
         // copy assets to local folder
-        copyAssetToStorage("kpclientd");
+        copyAssetToStorage("kpclientd", "kpclientd");
         File outFile = new File("/data/local/tmp/client.toml");
+        boolean done = false;
         if (outFile.exists()) {
             // if custom config exists, use that instead of the built-in
-            copyAssetToStorage("/data/local/tmp/client.toml");
-        } else {
-            copyAssetToStorage("client.toml");
+            done = copyAssetToStorage("/data/local/tmp/client.toml", "client.toml");
+        }
+        if (!done) {
+            copyAssetToStorage("client.toml", "client.toml");
         }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -155,24 +157,33 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void copyAssetToStorage(String name) {
-        File fOut;
-        if (name.startsWith("/")) {
-            fOut = new File(name);
-        } else {
-            fOut = new File(getFilesDir(), name);
-        }
-        try (InputStream in = getAssets().open(name);
-             OutputStream out = new FileOutputStream(fOut)) {
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
+    private boolean copyAssetToStorage(String src, String tgt) {
+        InputStream in = null;
+        try {
+            if (src.startsWith("/")) {
+                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat " + src});
+                in = process.getInputStream();
+            } else {
+                in = getAssets().open(src);
             }
-            out.flush();
+            File fOut = new File(getFilesDir(), tgt);
+            try (OutputStream out = new FileOutputStream(fOut)) {
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                out.flush();
+            }
+            return fOut.length() > 0;
+
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Failed to prepare resources!", Toast.LENGTH_LONG).show();
+            return false;
+        } finally {
+            if (in != null) {
+                try { in.close(); } catch (Exception ignored) {}
+            }
         }
     }
 }
