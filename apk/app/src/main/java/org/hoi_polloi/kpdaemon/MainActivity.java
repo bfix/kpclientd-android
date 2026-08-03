@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
                 String binaryPath = new File(getFilesDir(), "kpclientd").getAbsolutePath();
                 String configPath = new File(getFilesDir(), "client.toml").getAbsolutePath();
                 Runtime.getRuntime().exec("chmod 755 " + binaryPath).waitFor();
-                serverProcess = new ProcessBuilder(binaryPath, "-c", configPath).start();
+                String cmd = binaryPath + " -c " + configPath + " >/data/local/tmp/kpclientd.log 2>&1";
+                serverProcess = new ProcessBuilder("su", "-c", cmd).start();
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server started...", Toast.LENGTH_SHORT).show());
 
             } catch (Exception e) {
