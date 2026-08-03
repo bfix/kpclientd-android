@@ -25,8 +25,6 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    private boolean isRunning = false;
-
     private ActivityMainBinding binding;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable statusCheck;
@@ -62,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         statusCheck = new Runnable() {
             @Override
             public void run() {
-                isRunning = checkDaemonStatus();
+                checkDaemonStatus();
                 handler.postDelayed(this, 10000);
             }
         };
@@ -78,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(statusCheck);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopServer();
     }
 
     private void startServer() {
@@ -109,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkDaemonStatus() {
-        if (isRunning) {
+        if (serverProcess != null) {
             binding.textStatus.setText(R.string.daemon_on);
             binding.btnStart.setEnabled(false);
             binding.btnStop.setEnabled(true);
