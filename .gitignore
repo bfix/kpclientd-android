@@ -8,3 +8,4 @@ build
 /apk/app/debug
 /apk/gradlew*
 /apk/deploy
+/*_local

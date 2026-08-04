@@ -1,8 +1,12 @@
 #!/bin/bash
 
 ASDK=/usr/lib/android-sdk/build-tools/34.0.0
+KEYSTORE=/usr/local/src/keystore.jks
+KEY=dev
+
+#-----------------------------------------------------------------------
+
 APK=app/build/outputs/apk/release/app-release-unsigned.apk
-KEYSTORE=$(realpath ../kp-chat/apk/keystore.jks)
 
 cd apk/
 rm deploy/*.apk*
@@ -14,7 +18,7 @@ rm ${APK}
 [ ! -e ${APK} ] && exit 1
 
 ${ASDK}/zipalign -v 4 ${APK} deploy/kpclientd-release-aligned.apk > /dev/null 2>&1
-${ASDK}/apksigner sign --ks ${KEYSTORE} --ks-key-alias dev --out deploy/kpclientd.apk deploy/kpclientd-release-aligned.apk
+${ASDK}/apksigner sign --ks ${KEYSTORE} --ks-key-alias ${KEY} --out deploy/kpclientd.apk deploy/kpclientd-release-aligned.apk
 
 if [ "$1" = "+deploy" ]; then
     adb push deploy/kpclientd.apk /sdcard/Download
