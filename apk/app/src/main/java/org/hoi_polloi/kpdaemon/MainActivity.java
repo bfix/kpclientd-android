@@ -45,15 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         // copy assets to local folder
         copyAssetToStorage("kpclientd", "kpclientd");
-        File outFile = new File("/data/local/tmp/client.toml");
-        boolean done = false;
-        if (outFile.exists()) {
-            // if custom config exists, use that instead of the built-in
-            done = copyAssetToStorage("/data/local/tmp/client.toml", "client.toml");
-        }
-        if (!done) {
-            copyAssetToStorage("client.toml", "client.toml");
-        }
+        prepareConfig();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -73,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         binding.btnStart.setOnClickListener(v -> startServer());
         binding.btnStop.setOnClickListener(v -> stopServer());
 
+        sinceLast = new Date().getTime()/1000;
         statusCheck = new Runnable() {
             @Override
             public void run() {
@@ -81,14 +74,10 @@ public class MainActivity extends AppCompatActivity {
                     stateLast = currState;
                     sinceLast = new Date().getTime()/1000;
                 }
-                if (sinceLast > 0) {
-                    long span = new Date().getTime() / 1000 - sinceLast;
-                    int hrs = (int) (span / 3600);
-                    int mins = (int) (span % 3600) / 60;
-                    binding.elapsed.setText(String.format(Locale.ENGLISH, "%d:%02d", hrs, mins));
-                } else {
-                    binding.elapsed.setText("");
-                }
+                long span = new Date().getTime() / 1000 - sinceLast;
+                int hrs = (int) (span / 3600);
+                int mins = (int) (span % 3600) / 60;
+                binding.elapsed.setText(String.format(Locale.ENGLISH, "%d:%02d", hrs, mins));
                 handler.postDelayed(this, 1000);
             }
         };
@@ -116,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         if (serverProcess != null) {
             return;
         }
+        prepareConfig();
         executor.execute(() -> {
             try {
                 String binaryPath = new File(getFilesDir(), "kpclientd").getAbsolutePath();
@@ -124,12 +114,10 @@ public class MainActivity extends AppCompatActivity {
                 String cmd = binaryPath + " -c " + configPath + " >/data/local/tmp/kpclientd.log 2>&1 &";
                 serverProcess = new ProcessBuilder("su", "-c", cmd).start();
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server started...", Toast.LENGTH_SHORT).show());
-                isRunning = true;
 
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to start server!", Toast.LENGTH_SHORT).show());
-                isRunning = false;
             }
         });
     }
@@ -137,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
     private void stopServer() {
         if (serverProcess != null) {
             try {
-                Runtime.getRuntime().exec(new String[]{"su", "-c", "killall kpclientd"});
+                Runtime.getRuntime().exec(new String[]{"su", "-c", "pkill kpclientd"});
                 serverProcess.destroy();
                 serverProcess = null;
                 Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
@@ -146,10 +134,21 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Failed to stop server", Toast.LENGTH_SHORT).show();
             }
         }
-        isRunning = false;
     }
 
     private boolean checkDaemonStatus() {
+        // check the real state of the daemon
+        try {
+            Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "pgrep kpclientd"});
+            proc.waitFor();
+            InputStream in = proc.getInputStream();
+            isRunning = (in.available() > 0);
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // switch buttons if required
         if (isRunning) {
             binding.textStatus.setText(R.string.daemon_on);
             binding.btnStart.setEnabled(false);
@@ -159,8 +158,19 @@ public class MainActivity extends AppCompatActivity {
         binding.textStatus.setText(R.string.daemon_off);
         binding.btnStart.setEnabled(true);
         binding.btnStop.setEnabled(false);
-        sinceLast = -1L;
         return false;
+    }
+
+    private void prepareConfig() {
+        File outFile = new File("/data/local/tmp/client.toml");
+        boolean done = false;
+        if (outFile.exists()) {
+            // if custom config exists, use that instead of the built-in
+            done = copyAssetToStorage("/data/local/tmp/client.toml", "client.toml");
+        }
+        if (!done) {
+            copyAssetToStorage("client.toml", "client.toml");
+        }
     }
 
     private boolean copyAssetToStorage(String src, String tgt) {
