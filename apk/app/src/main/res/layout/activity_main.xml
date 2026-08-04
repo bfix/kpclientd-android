@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#3F51B5"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:visibility="visible">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
@@ -42,6 +43,7 @@
         android:fontFamily="sans-serif-black"
         android:text="Daemon stopped"
         android:textAlignment="center"
+        android:textColor="#cc9966"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,9 +68,9 @@
             android:layout_marginEnd="8dp"
             android:background="#2F41B5"
             android:scaleType="centerInside"
-            app:tint="@color/btn_selector"
             app:cornerRadius="30dp"
-            app:srcCompat="@android:drawable/ic_media_play" />
+            app:srcCompat="@android:drawable/ic_media_play"
+            app:tint="@color/btn_selector" />
 
         <ImageButton
             android:id="@+id/btn_stop"
@@ -79,10 +81,10 @@
             android:layout_marginTop="32dp"
             android:background="#2F41B5"
             android:scaleType="centerInside"
-            app:tint="@color/btn_selector"
             app:cornerRadius="30dp"
-            app:srcCompat="@android:drawable/ic_media_pause" />
-            
+            app:srcCompat="@android:drawable/ic_media_pause"
+            app:tint="@color/btn_selector" />
+
     </LinearLayout>
 
     <TextView
@@ -98,5 +100,31 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/buttons" />
+
+    <ImageButton
+        android:id="@+id/btn_log"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Expand"
+        android:padding="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/elapsed"
+        app:srcCompat="@drawable/m3_split_button_chevron_avd"
+        app:tint="#ffffff" />
+
+    <TextView
+        android:id="@+id/log"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#ffffff"
+        android:text="Log output from kpclientd"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_log"
+        app:layout_constraintVertical_bias="0.0" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

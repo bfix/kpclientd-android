@@ -1,6 +1,7 @@
 package org.hoi_polloi.kpdaemon;
 
 import android.os.Bundle;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -17,10 +18,14 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,12 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Runnable statusCheck;
     private Process serverProcess = null;
-
     private boolean isRunning;
-
     private boolean stateLast = false;
     private long sinceLast = -1L;
-
+    private FileObserver watch;
+    private String logPath;
 
     @Override
     protected void onCreate(Bundle BundleSavedInstanceState) {
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         // copy assets to local folder
         copyAssetToStorage("kpclientd", "kpclientd");
         prepareConfig();
+        logPath = new File(getFilesDir(), "kpclientd.log").getAbsolutePath();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -64,6 +69,20 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btnStart.setOnClickListener(v -> startServer());
         binding.btnStop.setOnClickListener(v -> stopServer());
+
+        ImageView btn = binding.btnLog;
+        btn.setOnClickListener(v -> {
+            View detail = binding.log;
+            if (detail.getVisibility() == View.INVISIBLE) {
+                detail.setVisibility(View.VISIBLE);
+                btn.setRotation(180f);
+            } else {
+                detail.setVisibility(View.INVISIBLE);
+                btn.setRotation(0f);
+            }
+        });
+
+        startWatch();
 
         sinceLast = new Date().getTime()/1000;
         statusCheck = new Runnable() {
@@ -111,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 String binaryPath = new File(getFilesDir(), "kpclientd").getAbsolutePath();
                 String configPath = new File(getFilesDir(), "client.toml").getAbsolutePath();
                 Runtime.getRuntime().exec("chmod 755 " + binaryPath).waitFor();
-                String cmd = binaryPath + " -c " + configPath + " >/data/local/tmp/kpclientd.log 2>&1 &";
+                String cmd = binaryPath + " -c " + configPath + " >" + logPath + " 2>&1 &";
                 serverProcess = new ProcessBuilder("su", "-c", cmd).start();
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server started...", Toast.LENGTH_SHORT).show());
 
@@ -123,17 +142,88 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopServer() {
-        if (serverProcess != null) {
-            try {
-                Runtime.getRuntime().exec(new String[]{"su", "-c", "pkill kpclientd"});
+        try {
+            Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "pkill kpclientd"});
+            proc.waitFor();
+            if (proc.exitValue() != 0) {
+                throw new Exception("can't kill kpclientd");
+            }
+            if (serverProcess != null) {
                 serverProcess.destroy();
                 serverProcess = null;
-                Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Failed to stop server", Toast.LENGTH_SHORT).show();
             }
+            Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to stop server", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void startWatch() {
+        File log = new File(logPath);
+        String[] body = new String[10];
+        Arrays.fill(body, "");
+        final int[] pos = {0};
+
+        watch = new FileObserver(log.getParent(), FileObserver.MODIFY) {
+            @Override
+            public void onEvent(int event, String path) {
+                if (path != null && path.equals(log.getName())) {
+                    executor.execute(() -> {
+                        String line = readLastLine(log);
+                        if (line == null) line = "";
+
+                        synchronized (body) {
+                            body[pos[0]] = line;
+                            pos[0] = (pos[0] + 1) % body.length;
+                            StringBuilder show = new StringBuilder();
+                            for (int i = 0; i < body.length; i++) {
+                                int idx = (pos[0] + i) % body.length;
+                                show.append(body[idx]).append("\n");
+                            }
+                            handler.post(() -> binding.log.setText(show.toString()));
+                            binding.log.post(() -> {
+                                android.text.Layout layout = binding.log.getLayout();
+                                if (layout != null) {
+                                    int height = layout.getLineTop(binding.log.getLineCount());
+                                    int viewHeight = binding.log.getHeight() - binding.log.getPaddingTop() - binding.log.getPaddingBottom();
+                                    int scroll = height - viewHeight;
+                                    if (scroll > 0) {
+                                        binding.log.scrollTo(0, scroll);
+                                    } else {
+                                        binding.log.scrollTo(0, 0);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        };
+        watch.startWatching();
+    }
+
+    private String readLastLine(File file) {
+        if (!file.exists() || file.length() == 0) {
+            return "";
+        }
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+            long ptr = file.length() - 1;
+            StringBuilder line = new StringBuilder();
+            while (ptr >= 0) {
+                raf.seek(ptr);
+                int c = raf.read();
+                if (c == '\n' && line.length() > 0) {
+                    return line.reverse().toString().trim();
+                } else if (c != '\r') {
+                    line.append((char) c);
+                }
+                ptr--;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "<log read failed>";
     }
 
     private boolean checkDaemonStatus() {
