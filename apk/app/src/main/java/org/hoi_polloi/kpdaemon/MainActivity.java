@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         final long[] pos = {0, 0};
 
         // start watching
-        watch = new FileObserver(log.getParent(), FileObserver.MODIFY) {
+        watch = new FileObserver(new File(log.getParent()), FileObserver.MODIFY) {
             @Override
             public void onEvent(int event, String path) {
                 if (path != null && path.equals(log.getName())) {
