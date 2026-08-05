@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
@@ -124,10 +125,18 @@ public class MainActivity extends AppCompatActivity {
                     sinceLast = new Date().getTime()/1000;
                 }
                 // display elapsed time.
+                String elapsed = "";
                 long span = new Date().getTime() / 1000 - sinceLast;
                 int hrs = (int) (span / 3600);
                 int mins = (int) (span % 3600) / 60;
-                binding.elapsed.setText(String.format(Locale.ENGLISH, "%d:%02d", hrs, mins));
+                if (hrs < 24) {
+                    elapsed = String.format(Locale.ENGLISH, "%d:%02d", hrs, mins);
+                } else {
+                    int days = hrs / 24;
+                    hrs = hrs % 24;
+                    elapsed = String.format(Locale.ENGLISH, "%dd %dh", hrs, mins);
+                }
+                binding.elapsed.setText(elapsed);
 
                 // restart in 1 second
                 handler.postDelayed(this, 1000);
@@ -162,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
         if (serverProcess != null) {
             return;
         }
+        binding.btnStart.setEnabled(false);
         // prepare configuration (use custom config file if available)
         prepareConfig();
         // start kpclientd in background
@@ -182,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
     // stop server
     private void stopServer() {
+        binding.btnStop.setEnabled(false);
         try {
             // stop running process
             Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "pkill kpclientd"});
@@ -220,6 +231,10 @@ public class MainActivity extends AppCompatActivity {
                         long curr = log.length();
                         if (curr == pos[1]) {
                             return;
+                        }
+                        // log truncated: start from beginning
+                        if (pos[1] > curr) {
+                            pos[1] = 0L;
                         }
                         // read everything since the last read
                         String line = readLog(log, pos[1], curr);
@@ -263,19 +278,15 @@ public class MainActivity extends AppCompatActivity {
         if (end - start > 8192L) {
             start = end - 8192L;
         }
-        // read logfile section
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            raf.seek(start);
-            StringBuilder line = new StringBuilder();
-            while (start < end) {
-                int c = raf.read();
-                if (c != '\r') {
-                    line.append((char) c);
-                }
-                start++;
-            }
-            return line.toString();
-        } catch (IOException e) {
+        // read section of the log file as a string
+        int n = (int) (end - start);
+        byte[] buf = new byte[n];
+        try (RandomAccessFile log = new RandomAccessFile(file, "r")) {
+            // Direkt zur Startposition springen
+            log.seek(start);
+            log.readFully(buf);
+            return new String(buf, StandardCharsets.UTF_8);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "<log read failed>";
