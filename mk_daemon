@@ -1,0 +1,29 @@
+#!/bin/bash
+
+ASDK=/usr/lib/android-sdk/ndk/28.0.13004108
+KATZENPOST_REPO=/usr/local/src/katzenpost
+
+#-----------------------------------------------------------------------
+
+ARCH=${1:-arm64}
+BASE=$(realpath ./apk/app/src/main/assets)
+OUT=${BASE}/kpclientd
+
+pushd ${KATZENPOST_REPO} >/dev/null 2>&1
+rm -f ${OUT}
+case ${ARCH} in
+    arm64)
+        export NDK_CC=${ASDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
+        CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=${NDK_CC} \
+            go build -o ${OUT} ./cmd/kpclientd
+        popd >/dev/null 2>&1
+        ;;
+    amd64)
+        export NDK_CC=${ASDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android28-clang
+        CGO_ENABLED=1 GOOS=android GOARCH=amd64 CC=${NDK_CC} CGO_LDFLAGS="-Wl,--allow-shlib-undefined" \
+            go build -buildmode=pie -o ${OUT} ./cmd/kpclientd
+        popd >/dev/null 2>&1
+        ;;
+esac
+ls -l ${OUT}
+

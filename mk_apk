@@ -1,0 +1,27 @@
+#!/bin/bash
+
+ASDK=/usr/lib/android-sdk/build-tools/34.0.0
+KEYSTORE=/usr/local/src/keystore.jks
+KEY=dev
+
+#-----------------------------------------------------------------------
+
+APK=app/build/outputs/apk/release/app-release-unsigned.apk
+
+cd apk/
+rm deploy/*.apk*
+rm ${APK}
+
+./gradlew clean build --no-daemon --no-build-cache
+[ $? -ne 0 ] && exit 1
+
+[ ! -e ${APK} ] && exit 1
+
+${ASDK}/zipalign -v 4 ${APK} deploy/kpclientd-release-aligned.apk > /dev/null 2>&1
+${ASDK}/apksigner sign --ks ${KEYSTORE} --ks-key-alias ${KEY} --out deploy/kpclientd.apk deploy/kpclientd-release-aligned.apk
+
+if [ "$1" = "+deploy" ]; then
+    adb push deploy/kpclientd.apk /sdcard/Download
+    adb push app/build/outputs/apk/debug/app-debug.apk /sdcard/Download/kpclientd-debug.apk
+fi
+exit 0

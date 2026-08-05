@@ -1,0 +1,11 @@
+/.vscode/
+.gradle
+.idea
+gradle
+build
+/work/
+/apk/app/release
+/apk/app/debug
+/apk/gradlew*
+/apk/deploy
+/*_local
