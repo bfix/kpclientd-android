@@ -69,14 +69,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle BundleSavedInstanceState) {
         super.onCreate(BundleSavedInstanceState);
 
-        // copy assets to local folder
-        copyAssetToStorage("kpclientd", "kpclientd");
-        prepareConfig();
-        logPath = new File(getFilesDir(), "kpclientd.log").getAbsolutePath();
-
         // get layout binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // copy assets to local folder
+        copyAssetToStorage("kpclientd", "kpclientd");
+        String config = "Configuration: ";
+        if (prepareConfig()) {
+            config += "custom";
+        } else {
+            config += "local";
+        }
+        binding.config.setText(config);
+        logPath = new File(getFilesDir(), "kpclientd.log").getAbsolutePath();
 
         // switch off ActionBar
         if (getSupportActionBar() != null) {
@@ -320,28 +326,35 @@ public class MainActivity extends AppCompatActivity {
 
     // prepare configuration: use custom config file /data/local/tmp/client.toml
     // if available otherwise use configuration from built-in assets folder.
-    private void prepareConfig() {
+    private boolean prepareConfig() {
         File outFile = new File("/data/local/tmp/client.toml");
         boolean done = false;
+        boolean custom = false;
         if (outFile.exists()) {
             // if custom config exists, use that instead of the built-in
             done = copyAssetToStorage("/data/local/tmp/client.toml", "client.toml");
+            custom = true;
         }
         if (!done) {
             copyAssetToStorage("client.toml", "client.toml");
+            custom = false;
         }
+        return custom;
     }
 
     // copy file from the assets folder to the local directory
     private boolean copyAssetToStorage(String src, String tgt) {
         InputStream in = null;
+        boolean status = false;
         try {
             // check for absolute path (custom config)
             if (src.startsWith("/")) {
                 Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat " + src});
                 in = process.getInputStream();
+                status = true;
             } else {
                 in = getAssets().open(src);
+                status = false;
             }
             // copy content over to local file
             File fOut = new File(getFilesDir(), tgt);
@@ -357,12 +370,12 @@ public class MainActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         } finally {
             // close inputstream
             if (in != null) {
                 try { in.close(); } catch (Exception ignored) {}
             }
         }
+        return status;
     }
 }
