@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KP Daemon</string>
+    <string name="kp_title">kpclientd</string>
+    <string name="daemon_on">Server läuft…</string>
+    <string name="daemon_off">Server gestoppt.</string>
+    <string name="kpclientd">kpclientd</string>
+    <string name="config_src">"Konfiguration: "</string>
+    <string name="cfg_custom">angepasst</string>
+    <string name="cfg_local">eingebaut</string>
+    <string name="log_file">kpclient.log</string>
+    <string name="elapsed_short" formatted="false">%d:%02d</string>
+    <string name="elapsed_long" formatted="false">%d Std. %d Min.</string>
+    <string name="config_file">client.toml</string>
+    <string name="server_start">Starte server</string>
+    <string name="server_started">Server gestartet…</string>
+    <string name="server_fail_start">Kann Server nicht starten!</string>
+    <string name="server_stop">Server anhalten</string>
+    <string name="server_fail_stop">Kann Server nicht anhalten</string>
+    <string name="server_stopped">Server angehalten</string>
+    <string name="log_read_failed">(Log-Lesefehler)</string>
+    <string name="custom_config">/data/local/tmp/client.toml</string>
+    <string name="description_logo">App Logo</string>
+    <string name="description_toggle_log">Umschalten der Loganzeige</string>
+    <string name="log_output">Logausgabe des Servers</string>
+    <string name="elapsed">0:00</string>
+</resources>

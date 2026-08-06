@@ -19,12 +19,21 @@
 @if "%DEBUG%"=="" @echo off
 @rem ##########################################################################
 @rem
+<<<<<<< HEAD
 @rem  Gradle startup script for Windows
 @rem
 @rem ##########################################################################
 
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
+=======
+@rem  gradlew startup script for Windows
+@rem
+@rem ##########################################################################
+
+@rem Set local scope for the variables, and ensure extensions are enabled
+setlocal EnableExtensions
+>>>>>>> dev
 
 set DIRNAME=%~dp0
 if "%DIRNAME%"=="" set DIRNAME=.
@@ -51,7 +60,11 @@ echo. 1>&2
 echo Please set the JAVA_HOME variable in your environment to match the 1>&2
 echo location of your Java installation. 1>&2
 
+<<<<<<< HEAD
 goto fail
+=======
+"%COMSPEC%" /c exit 1
+>>>>>>> dev
 
 :findJavaFromJavaHome
 set JAVA_HOME=%JAVA_HOME:"=%
@@ -65,11 +78,16 @@ echo. 1>&2
 echo Please set the JAVA_HOME variable in your environment to match the 1>&2
 echo location of your Java installation. 1>&2
 
+<<<<<<< HEAD
 goto fail
+=======
+"%COMSPEC%" /c exit 1
+>>>>>>> dev
 
 :execute
 @rem Setup the command line
 
+<<<<<<< HEAD
 set CLASSPATH=
 
 
@@ -92,3 +110,15 @@ exit /b %EXIT_CODE%
 if "%OS%"=="Windows_NT" endlocal
 
 :omega
+=======
+
+
+@rem Execute gradlew
+@rem endlocal doesn't take effect until after the line is parsed and variables are expanded
+@rem which allows us to clear the local environment before executing the java command
+endlocal & "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -jar "%APP_HOME%\gradle\wrapper\gradle-wrapper.jar" %* & call :exitWithErrorLevel
+
+:exitWithErrorLevel
+@rem Use "%COMSPEC%" /c exit to allow operators to work properly in scripts
+"%COMSPEC%" /c exit %ERRORLEVEL%
+>>>>>>> dev

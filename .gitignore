@@ -8,4 +8,8 @@ build
 /apk/app/debug
 /apk/gradlew*
 /apk/deploy
+/apk/app/src/main/assets/kpclientd
+/apk/gradlew*
+/apk/deploy
+/f-droid/test/
 /*_local
