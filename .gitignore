@@ -6,6 +6,8 @@ build
 /work/
 /apk/app/release
 /apk/app/debug
+/apk/app/src/main/assets/kpclientd
 /apk/gradlew*
 /apk/deploy
+/f-droid/test/
 /*_local
