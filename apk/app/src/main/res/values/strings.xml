@@ -6,10 +6,10 @@
     <string name="kpclientd">kpclientd</string>
     <string name="config_src">"Configuration: "</string>
     <string name="cfg_custom">custom</string>
-    <string name="cfg_local">local</string>
+    <string name="cfg_local">built-in</string>
     <string name="log_file">kpclientd.log</string>
-    <string name="elapsed_short">%d:%02d</string>
-    <string name="elapsed_long">%dd %dh</string>
+    <string name="elapsed_short" formatted="false">%d:%02d</string>
+    <string name="elapsed_long" formatted="false">%dd %dh</string>
     <string name="config_file">client.toml</string>
     <string name="server_start">Start server</string>
     <string name="server_started">Server started…</string>
@@ -19,8 +19,8 @@
     <string name="server_stopped">Server stopped</string>
     <string name="log_read_failed">(log read failed)</string>
     <string name="custom_config">/data/local/tmp/client.toml</string>
-    <string name="description_logo">kpclientd logo</string>
+    <string name="description_logo">app logo</string>
     <string name="description_toggle_log">Toggle log view</string>
-    <string name="log_output">Log output from kpclientd</string>
+    <string name="log_output">Log output from server</string>
     <string name="elapsed">0:00</string>
 </resources>
