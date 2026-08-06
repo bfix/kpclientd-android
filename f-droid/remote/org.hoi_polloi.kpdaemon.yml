@@ -1,6 +1,6 @@
 Categories:
   - System
-License: AGPL-3.0-only
+License: AGPL-3.0-or-later
 SourceCode: https://github.com/bfix/kpclientd-android
 IssueTracker: https://github.com/bfix/kpclientd-android/issues
 
@@ -30,6 +30,6 @@ Builds:
       - export CGO_ENABLED=1
       - mkdir -p ../go-bin-build
       - go build -o ../go-bin-build/kpclientd ./cmd/kpclientd
-      - cd ../../org.hoi_polloi.kpdaemon/apk
-      - echo -e "\nandroid.sourceSets.main.assets.srcDirs += ['../../srclib/go-bin/build']" >> app/build.gradle
+      - cd ../../build/org.hoi_polloi.kpdaemon/apk
+      - echo -e "\nandroid.sourceSets.main.assets.srcDirs += ['../../../srclib/go-bin-build']" >> app/build.gradle
       - find . -name "gradle.properties" -exec sed -i '$a org.gradle.configuration-cache=false' {} \;
