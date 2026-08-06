@@ -10,15 +10,19 @@ Repo: https://github.com/bfix/kpclientd-android.git
 AutoName: Katzenpost client daemon
 
 Builds:
-  - versionName: '1.0.0-beta.4'
+  - versionName: '1.0'
     versionCode: 1
-    commit: 'v1.0.0-beta.4'
+    commit: 'v1.0.0-beta.5'
     subdir: apk
     ndk: 'r28'
     gradle:
       - yes
+    forceversion: true
     srclibs:
       - "katzenpost@main"
+    gradleprops:
+      - android.sourceSets.main.assets.srcDirs+=/tmp/go-bin-build
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
     prebuild:
       - find . -name "gradle-wrapper.properties" -exec sed -i 's/9.5.0/8.7/g' {} \;
       - cd ../../srclib/katzenpost
@@ -27,5 +31,6 @@ Builds:
       - export GOOS=android
       - export GOARCH=arm64
       - export CGO_ENABLED=1
-      - go build -o ../../org.hoi_polloi.kpdaemon/apk/app/src/main/assets/kpclientd ./cmd/kpclientd
+      - mkdir -p /tmp/go-bin-build
+      - go build -o /tmp/go-bin-build/kpclientd ./cmd/kpclientd
       - cd ../../org.hoi_polloi.kpdaemon/apk
