@@ -1,12 +1,14 @@
 #!/bin/bash
 
+. .env
+
 mkdir $1
 cd $1
 
 fdroid init
 
 mkdir metadata
-cp ../org.hoi_polloi.kpdaemon.yml metadata/
+sed -e "s|@REPO@|${REPO}|" ../org.hoi_polloi.kpdaemon.yml > metadata/org.hoi_polloi.kpdaemon.yml
 
 mkdir build
 cd build/

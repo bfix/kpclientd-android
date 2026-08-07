@@ -9,5 +9,6 @@ build
 /apk/app/src/main/assets/kpclientd
 /apk/gradlew*
 /apk/deploy
-/f-droid/test/
+/f-droid/local/test/
+/f-droid/local/.env
 /*_local

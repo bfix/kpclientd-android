@@ -6,11 +6,8 @@ AuthorEmail: brf@hoi-polloi.org
 License: AGPL-3.0-or-later
 AutoName: KP daemon
 
-#SourceCode: https://github.com/bfix/kpclientd-android
-#IssueTracker: https://github.com/bfix/kpclientd-android/issues
 RepoType: git
-#Repo: https://github.com/bfix/kpclientd-android.git
-Repo: http://127.0.0.1:13000/brf/kpclientd-android
+Repo: @REPO@
 
 Builds:
   - versionName: '1.0.0'
