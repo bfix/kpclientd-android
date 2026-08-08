@@ -1,9 +1,0 @@
-This app starts and stops the Katzenpost client daemon for Android.
-The client daemon is a local gateway to the Katzenpost mixnet (see https://github.com/katzenpost/katzenpost).
-It serves an abstract Unix socket "@katzenpost" that is used by multiple, concurrent clients (e.g. chat).
-
-The daemon has a built-in configuration file but this can be outdated at the time you want to run the daemon.
-Copy a new configuration file (called 'client.toml') from the Katzenpost project into the '/sdcard/Download/' folder.
-If the app finds such file, it will use it instead of the built-in configuration.
-
-This app requires a root device with the 'su' command available (for example via Magisk).

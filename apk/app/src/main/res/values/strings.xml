@@ -18,7 +18,7 @@
     <string name="server_fail_stop">Can\'t stop kpclientd</string>
     <string name="server_stopped">Server stopped</string>
     <string name="log_read_failed">(log read failed)</string>
-    <string name="custom_config">/data/local/tmp/client.toml</string>
+    <string name="custom_config">/sdcard/Download/client.toml</string>
     <string name="description_logo">app logo</string>
     <string name="description_toggle_log">Toggle log view</string>
     <string name="log_output">Log output from server</string>

@@ -136,13 +136,11 @@ but it may be outdated the time you want to run the daemon.
 
 Because this file is currently not public (it resides in a private repository
 `github.com/katzenpost/namenlos`) you need to contact the Katzenpost project
-and ask for a new version. Copy the new `client.toml` to the `/data/local/tmp`
+and ask for a new version. Copy the new `client.toml` to the `/sdcard/Download`
 folder on your device, where the daemon will pick it up at start time.
 
-**Beware**: The `/data/local/tmp` folder may be emptied by Android anytime,
-so your custom config may get lost. Copy it again if required.
-
-Click on the app icon to open the GUI.
+Click on the app icon to open the GUI. Below the title line you see a line like
+`Configuration: ...` where either `built-in` or `custom` is specified.
 
 ### Using the app
 

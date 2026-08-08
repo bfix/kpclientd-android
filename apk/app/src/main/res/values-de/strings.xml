@@ -19,9 +19,9 @@
     <string name="server_fail_stop">Kann Server nicht anhalten</string>
     <string name="server_stopped">Server angehalten</string>
     <string name="log_read_failed">(Log-Lesefehler)</string>
-    <string name="custom_config">/data/local/tmp/client.toml</string>
+    <string name="custom_config">/sdcard/Download/client.toml</string>
     <string name="description_logo">App Logo</string>
-    <string name="description_toggle_log">Umschalten der Loganzeige</string>
-    <string name="log_output">Logausgabe des Servers</string>
+    <string name="description_toggle_log">Umschalten der Log-Anzeige</string>
+    <string name="log_output">Log-Ausgabe des Servers</string>
     <string name="elapsed">0:00</string>
 </resources>

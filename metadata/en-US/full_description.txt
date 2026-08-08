@@ -1,0 +1,9 @@
+<b>IMPORTANT: This app requires a rooted device with the 'su' command available (for example via Magisk).</b>
+
+The <tt>KP Damon</tt> app starts and stops the <i>Katzenpost client daemon (kpclientd)</i> for Android. The client daemon is a local gateway to the Katzenpost mixnet (see https://github.com/katzenpost/katzenpost). It serves an abstract Unix socket named <tt>@katzenpost</tt> that can be used by multiple, concurrent clients (e.g. chat) to participate in the mixnet.
+
+The daemon has a built-in configuration file but that can be out-dated at the time you want to run the daemon. Get a new configuration file (called <tt>client.toml</tt>) from the Katzenpost project and copy it into the <tt>/sdcard/Download/</tt> folder. If this file is present, it will be used instead of the built-in configuration.
+
+The app screen will show the elapsed time for the current state (either "started" or "stopped") and (toggable) the last lines from the log output of kpclientd.
+
+You can built your own custom mixnet clients to communicate with custom services running on the mixnet. For Android it is recommended to use the "thinclient" Go-bindings from the Katzenpost project, write the client logic for the mixnet protocol in Go and compile this code with <tt>gomobile</tt> into an AAR (Android Archive). Now Java (or Kotlin) can be used to write the GUI and to call the AAR for messaging.
