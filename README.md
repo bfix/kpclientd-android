@@ -151,4 +151,4 @@ If the app ist started it will display the following screen:
 There are two buttons to start and stop the daemon and the elapsed time in
 either state is displayed below (format "&lt;hrs&gt;:&lt;mins&gt;").
 
-You can toggle the log view with the button above the window.
+You can toggle the log view with the chevron button above the window.
