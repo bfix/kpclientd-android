@@ -146,7 +146,8 @@ Click on the app icon to open the GUI. Below the title line you see a line like
 
 If the app ist started it will display the following screen:
 
-<img src="images/screenshot.png" width="250" alt="kpclientd screenshot">
+<img src="images/1.png" width="250" alt="kpclientd screenshot 1">
+<img src="images/2.png" width="250" alt="kpclientd screenshot 2">
 
 There are two buttons to start and stop the daemon and the elapsed time in
 either state is displayed below (format "&lt;hrs&gt;:&lt;mins&gt;").
