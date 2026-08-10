@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: Copyright 2026-present, Bernd Fix >Y<
+# SPDX-License-Identifier: AGPL-3.0-only
+
 ASDK=/usr/lib/android-sdk/build-tools/34.0.0
 KEYSTORE=/usr/local/src/keystore.jks
 KEY=dev
