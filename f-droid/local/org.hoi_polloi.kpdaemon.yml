@@ -12,7 +12,7 @@ Repo: @REPO@
 Builds:
   - versionName: '1.0.0'
     versionCode: 1000000
-    commit: 'fdroid'
+    commit: 'v1.0.0'
     forceversion: true
 
     subdir: apk
