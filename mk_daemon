@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: Copyright 2026-present, Bernd Fix >Y<
+# SPDX-License-Identifier: AGPL-3.0-only
+
 ASDK=/usr/lib/android-sdk/ndk/28.0.13004108
 KATZENPOST_REPO=/usr/local/src/katzenpost
 

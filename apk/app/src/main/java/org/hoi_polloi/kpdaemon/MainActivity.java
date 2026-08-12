@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean stateLast = false;
     private long sinceLast = -1L;
 
-    // watch for changes in logfile
+    // watch for changes in logfile (don't make local in method)
     private FileObserver watch;
     private String logPath;
 
@@ -69,14 +69,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle BundleSavedInstanceState) {
         super.onCreate(BundleSavedInstanceState);
 
-        // copy assets to local folder
-        copyAssetToStorage("kpclientd", "kpclientd");
-        prepareConfig();
-        logPath = new File(getFilesDir(), "kpclientd.log").getAbsolutePath();
-
         // get layout binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // copy assets to local folder
+        copyAssetToStorage(getString(R.string.kpclientd), getString(R.string.kpclientd));
+        String config = getString(R.string.config_src);
+        if (prepareConfig()) {
+            config += getString(R.string.cfg_custom);
+        } else {
+            config += getString(R.string.cfg_local);
+        }
+        binding.config.setText(config);
+        logPath = new File(getFilesDir(), getString(R.string.log_file)).getAbsolutePath();
 
         // switch off ActionBar
         if (getSupportActionBar() != null) {
@@ -130,11 +136,11 @@ public class MainActivity extends AppCompatActivity {
                 int hrs = (int) (span / 3600);
                 int mins = (int) (span % 3600) / 60;
                 if (hrs < 24) {
-                    elapsed = String.format(Locale.ENGLISH, "%d:%02d", hrs, mins);
+                    elapsed = String.format(Locale.ENGLISH, getString(R.string.elapsed_short), hrs, mins);
                 } else {
                     int days = hrs / 24;
                     hrs = hrs % 24;
-                    elapsed = String.format(Locale.ENGLISH, "%dd %dh", hrs, mins);
+                    elapsed = String.format(Locale.ENGLISH, getString(R.string.elapsed_long), hrs, mins);
                 }
                 binding.elapsed.setText(elapsed);
 
@@ -177,15 +183,15 @@ public class MainActivity extends AppCompatActivity {
         // start kpclientd in background
         executor.execute(() -> {
             try {
-                String binaryPath = new File(getFilesDir(), "kpclientd").getAbsolutePath();
-                String configPath = new File(getFilesDir(), "client.toml").getAbsolutePath();
+                String binaryPath = new File(getFilesDir(), getString(R.string.kpclientd)).getAbsolutePath();
+                String configPath = new File(getFilesDir(), getString(R.string.config_file)).getAbsolutePath();
                 Runtime.getRuntime().exec("chmod 755 " + binaryPath).waitFor();
                 String cmd = binaryPath + " -c " + configPath + " >" + logPath + " 2>&1 &";
                 serverProcess = new ProcessBuilder("su", "-c", cmd).start();
-                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server started...", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.server_started, Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to start server!", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, R.string.server_fail_start, Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -195,20 +201,20 @@ public class MainActivity extends AppCompatActivity {
         binding.btnStop.setEnabled(false);
         try {
             // stop running process
-            Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "pkill kpclientd"});
+            Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "pkill "+getString(R.string.kpclientd)});
             proc.waitFor();
             if (proc.exitValue() != 0) {
-                throw new Exception("can't kill kpclientd");
+                throw new Exception(getString(R.string.server_fail_stop));
             }
             // handle process variable
             if (serverProcess != null) {
                 serverProcess.destroy();
                 serverProcess = null;
             }
-            Toast.makeText(this, "Server stopped", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.server_stopped, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Failed to stop server", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.server_fail_stop), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -289,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "<log read failed>";
+        return getString(R.string.log_read_failed);
     }
 
     // check the status of the daemon
@@ -297,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
         // check the real state of the daemon
         try {
             // check if the process is running
-            Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "pgrep kpclientd"});
+            Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", "pgrep "+getString(R.string.kpclientd)});
             proc.waitFor();
             InputStream in = proc.getInputStream();
             isRunning = (in.available() > 0);
@@ -320,28 +326,35 @@ public class MainActivity extends AppCompatActivity {
 
     // prepare configuration: use custom config file /data/local/tmp/client.toml
     // if available otherwise use configuration from built-in assets folder.
-    private void prepareConfig() {
-        File outFile = new File("/data/local/tmp/client.toml");
+    private boolean prepareConfig() {
+        File outFile = new File(getString(R.string.custom_config));
         boolean done = false;
+        boolean custom = false;
         if (outFile.exists()) {
             // if custom config exists, use that instead of the built-in
-            done = copyAssetToStorage("/data/local/tmp/client.toml", "client.toml");
+            done = copyAssetToStorage(getString(R.string.custom_config), getString(R.string.config_file));
+            custom = true;
         }
         if (!done) {
-            copyAssetToStorage("client.toml", "client.toml");
+            copyAssetToStorage(getString(R.string.config_file), getString(R.string.config_file));
+            custom = false;
         }
+        return custom;
     }
 
     // copy file from the assets folder to the local directory
     private boolean copyAssetToStorage(String src, String tgt) {
         InputStream in = null;
+        boolean status = false;
         try {
             // check for absolute path (custom config)
             if (src.startsWith("/")) {
                 Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat " + src});
                 in = process.getInputStream();
+                status = true;
             } else {
                 in = getAssets().open(src);
+                status = false;
             }
             // copy content over to local file
             File fOut = new File(getFilesDir(), tgt);
@@ -357,12 +370,12 @@ public class MainActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         } finally {
             // close inputstream
             if (in != null) {
                 try { in.close(); } catch (Exception ignored) {}
             }
         }
+        return status;
     }
 }
