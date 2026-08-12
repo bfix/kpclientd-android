@@ -7,7 +7,7 @@ build
 /apk/app/release
 /apk/app/debug
 /apk/app/src/main/assets/kpclientd
-/apk/gradlew*
+/apk/gradle*
 /apk/local.properties
 /apk/deploy
 /f-droid/local/test/
