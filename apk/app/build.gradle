@@ -1,14 +1,10 @@
 plugins {
-    alias(libs.plugins.android.application)
+    id 'com.android.application'
 }
 
 android {
     namespace 'org.hoi_polloi.kpdaemon'
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk 36
 
     defaultConfig {
         applicationId "org.hoi_polloi.kpdaemon"
@@ -23,7 +19,7 @@ android {
     buildTypes {
         release {
             optimization {
-                enable false
+                enable(false)
             }
             minifyEnabled false
         }
