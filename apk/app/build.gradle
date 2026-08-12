@@ -1,0 +1,53 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace 'org.hoi_polloi.kpdaemon'
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
+
+    defaultConfig {
+        applicationId "org.hoi_polloi.kpdaemon"
+        minSdk 33
+        targetSdk 36
+        versionCode 1000000
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            optimization {
+                enable false
+            }
+            minifyEnabled false
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+
+        tasks.withType(JavaCompile).configureEach {
+            options.compilerArgs << "-Xlint:deprecation"
+        }
+    }
+}
+
+dependencies {
+    implementation libs.appcompat
+    implementation libs.cardview
+    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.ext.junit
+}
