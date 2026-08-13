@@ -1,30 +1,36 @@
 plugins {
-    alias(libs.plugins.android.application)
+    id 'com.android.application'
 }
 
 android {
     namespace 'org.hoi_polloi.kpdaemon'
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk 36
 
     defaultConfig {
         applicationId "org.hoi_polloi.kpdaemon"
         minSdk 33
         targetSdk 36
-        versionCode 1
-        versionName "1.0"
+        versionCode 1000000
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include "arm64-v8a"
+            universalApk false
+        }
     }
 
     buildTypes {
         release {
             optimization {
-                enable false
+                enable(false)
             }
+            minifyEnabled false
         }
     }
 

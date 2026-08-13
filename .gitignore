@@ -6,6 +6,10 @@ build
 /work/
 /apk/app/release
 /apk/app/debug
-/apk/gradlew*
+/apk/app/src/main/assets/kpclientd
+/apk/gradle*
+/apk/local.properties
 /apk/deploy
+/f-droid/local/test/
+/f-droid/local/.env
 /*_local

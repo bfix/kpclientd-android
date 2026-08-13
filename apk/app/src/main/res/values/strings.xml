@@ -1,6 +1,26 @@
 <resources>
     <string name="app_name">KP Daemon</string>
     <string name="kp_title">kpclientd</string>
-    <string name="daemon_on">Daemon is running...</string>
+    <string name="daemon_on">Daemon is running…</string>
     <string name="daemon_off">Daemon is stopped.</string>
+    <string name="kpclientd">kpclientd</string>
+    <string name="config_src">"Configuration: "</string>
+    <string name="cfg_custom">custom</string>
+    <string name="cfg_local">built-in</string>
+    <string name="log_file">kpclientd.log</string>
+    <string name="elapsed_short" formatted="false">%d:%02d</string>
+    <string name="elapsed_long" formatted="false">%dd %dh</string>
+    <string name="config_file">client.toml</string>
+    <string name="server_start">Start server</string>
+    <string name="server_started">Server started…</string>
+    <string name="server_fail_start">Failed to start server!</string>
+    <string name="server_stop">Stop server</string>
+    <string name="server_fail_stop">Can\'t stop kpclientd</string>
+    <string name="server_stopped">Server stopped</string>
+    <string name="log_read_failed">(log read failed)</string>
+    <string name="custom_config">/sdcard/Download/client.toml</string>
+    <string name="description_logo">app logo</string>
+    <string name="description_toggle_log">Toggle log view</string>
+    <string name="log_output">Log output from server</string>
+    <string name="elapsed">0:00</string>
 </resources>
