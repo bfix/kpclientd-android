@@ -3,6 +3,10 @@
 Run [Katzenpost](https://github.com/katzenpost/katzenpost) client daemon
 `kpclientd` on Android devices.
 
+<a href="https://f-droid.org/packages/org.hoi_polloi.kpdaemon/">
+  <img src="https://f-droid.org/badge/get-it-on.svg" alt="Get it on F-Droid" width="150">
+</a>
+
 ## License
 
 Copyright (C) 2026-present, Bernd Fix   >Y<
@@ -144,15 +148,11 @@ Click on the app icon to open the GUI. Below the title line you see a line like
 
 ### Using the app
 
-If the app ist started it will display the following screen:
+If the app is started it will display the first of the following screens:
 
-<table>
-  <tr>
-    <td><img src="images/1.png" width="90%" alt="kpclientd screenshot 1"/></td>
-    <td><img src="images/2.png" width="90%" alt="kpclientd screenshot 2"/></td>
-    <td><img src="images/3.png" width="90%" alt="kpclientd screenshot 3"/></td>
-  </tr>
-</table>
+| | | |
+| :---: | :---: | :---: |
+| <img alt="kpclientd screenshot 1" src="images/1.png"> | <img alt="kpclientd screenshot 2" src="images/2.png"> | <img alt="kpclientd screenshot 3" src="images/3.png"> |
 
 There are two buttons to start and stop the daemon and the elapsed time in
 either state is displayed below (format "&lt;hrs&gt;:&lt;mins&gt;").
