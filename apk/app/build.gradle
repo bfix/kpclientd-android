@@ -56,3 +56,8 @@ dependencies {
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
 }
+
+configurations.configureEach {
+    exclude group: 'io.opencensus', module: 'opencensus-api'
+    exclude group: 'io.opencensus', module: 'opencensus-proto'
+}
