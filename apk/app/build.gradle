@@ -46,6 +46,15 @@ android {
             options.compilerArgs << "-Xlint:deprecation"
         }
     }
+
+    packaging {
+        resources {
+            excludes += 'META-INF/maven/io.opencensus/**'
+            excludes += 'META-INF/io.opencensus/**'
+            excludes += '**/io.opencensus/**/*.properties'
+            excludes += '**/io.opencensus/**/*.class'
+        }
+    }
 }
 
 dependencies {
@@ -55,9 +64,4 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
-}
-
-configurations.configureEach {
-    exclude group: 'io.opencensus', module: 'opencensus-api'
-    exclude group: 'io.opencensus', module: 'opencensus-proto'
 }
