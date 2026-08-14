@@ -6,7 +6,7 @@ build
 /work/
 /apk/app/release
 /apk/app/debug
-/apk/app/src/main/assets/kpclientd
+/apk/app/src/main/assets/kpclientd*
 /apk/gradle*
 /apk/local.properties
 /apk/deploy
