@@ -1,0 +1,26 @@
+Katzenpost Client Daemon -- Copyright (c) 2026-present, Bernd Fix &gt;Y&lt;
+
+The Katzenpost Client Daemon is a secure background service for the Katzenpost mix network on Android. The app allows other applications to establish encrypted, metadata-free connections using the Katzenpost protocol.
+
+Features:
+* Full integration of the Katzenpost client daemon (kpclientd)
+* GUI to start and stop the service and to view the log output from the service
+
+The source code for the Katzenpost Client Daemon as well as for the Katzenpost mixnet framework is free and open source software (AGPL-3.0-or-later).
+
+IMPORTANT:
+* The app requires a rooted device with the 'su' command available (for example via Magisk).
+* The app is only available on the 'arm64-v8a' architecture.
+* The app provides a background service that can be used by other apps to participate in the Katzenpost mixnet. Currently no publically available apps are using this service.
+
+Katzenpost is a mixnet implementation based on the Loopix design. The Loopix anonymity system was developed with financial support from the European Union's Horizon 2020 research and innovation program under Grant Agreement No. 653497, as part of the broader PANORAMIX (Privacy and Accountability in Networks via Optimized Randomized Mix-nets) project (see https://panoramix-project.eu/software/). It uses Post-Quantum-Cryptography ("Ed25519 Sphincx+") for signatures.
+
+The app starts and stops the Katzenpost client daemon for Android. The client daemon is a local gateway to the Katzenpost mixnet (see https://github.com/katzenpost/katzenpost/cmd/client). It serves - depending on its configuration - an abstract Unix socket, a file-based Unix socket or a TCP socket that can be used by multiple, concurrent clients (e.g. chat) to participate in the mixnet. The configuration for Android is based on abstract Unix sockets.
+
+The Katzenpost daemon has a built-in configuration file but that can be out-dated at the time you want to run the daemon. Get a new configuration file (called 'client.toml') from the Katzenpost project and copy it into the '/sdcard/Download/' folder. If this file is present, it will be used instead of the built-in configuration.
+
+The app screen will show the elapsed time for the current state (either "started" or "stopped") and (toggable) the last lines from the log output of kpclientd.
+
+You can built your own custom mixnet clients to communicate with custom services running on the mixnet. For Android it is recommended to use the "thinclient" Go-bindings from the Katzenpost project, write the client logic for the mixnet protocol in Go and compile this code with 'gomobile' into an AAR (Android Archive). Now Java (or Kotlin) can be used to write the GUI and to call the AAR for communicating with the mixnet.
+
+The documentation for the ThinClient API can be found at https://katzenpost.network/docs/thin_client_api_reference/.
