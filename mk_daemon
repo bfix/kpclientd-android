@@ -28,5 +28,5 @@ case ${ARCH} in
         popd >/dev/null 2>&1
         ;;
 esac
-ls -l ${OUT}
+[ -e ${OUT} ] && ls -l ${OUT}
 
