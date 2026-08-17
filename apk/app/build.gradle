@@ -47,6 +47,11 @@ android {
         }
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     packaging {
         resources {
             excludes += 'META-INF/maven/io.opencensus/**'
