@@ -16,9 +16,13 @@ pushd ${KATZENPOST_REPO} >/dev/null 2>&1
 rm -f ${OUT}
 case ${ARCH} in
     arm64)
-        export NDK_CC=${ASDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
-        CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=${NDK_CC} \
-            go build -o ${OUT} ./cmd/kpclientd
+        export NDK_CC=${ASDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android34-clang
+        export GOTOOLCHAIN=local
+        go mod verify
+        CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=${NDK_CC} go build \
+            -trimpath -buildvcs=false \
+            -ldflags="-s -w -buildid= -extldflags=-Wl,--build-id=none" \
+            -o ${OUT} ./cmd/kpclientd
         popd >/dev/null 2>&1
         ;;
     amd64)
