@@ -46,6 +46,20 @@ android {
             options.compilerArgs << "-Xlint:deprecation"
         }
     }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
+    packaging {
+        resources {
+            excludes += 'META-INF/maven/io.opencensus/**'
+            excludes += 'META-INF/io.opencensus/**'
+            excludes += '**/io.opencensus/**/*.properties'
+            excludes += '**/io.opencensus/**/*.class'
+        }
+    }
 }
 
 dependencies {
