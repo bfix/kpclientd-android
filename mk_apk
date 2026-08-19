@@ -9,23 +9,32 @@ KEY=dev
 
 #-----------------------------------------------------------------------
 
-APK_R=app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk
-APK_D=app/build/outputs/apk/debug/app-arm64-v8a-debug.apk
+APK_R1=app/build/outputs/apk/arm64/release/app-arm64-release-unsigned.apk
+APK_R2=app/build/outputs/apk/amd64/release/app-amd64-release-unsigned.apk
+
+APK_D1=app/build/outputs/apk/arm64/debug/app-arm64-debug.apk
+APK_D2=app/build/outputs/apk/amd64/debug/app-amd64-debug.apk
 
 cd apk/
 rm deploy/*.apk*
-rm ${APK_R} ${APK_D}
+rm ${APK_R1} ${APK_D1} ${APK_R2} ${APK_D2}
 
+echo "Building APKS..."
 ./gradlew clean build --no-daemon --no-build-cache
 [ $? -ne 0 ] && exit 1
 
-[ ! -e ${APK_R} ] && exit 1
+ls -l ${APK_R1} ${APK_D1} ${APK_R2} ${APK_D2}
 
-${ASDK}/zipalign -v 4 ${APK_R} deploy/kpclientd-release-aligned.apk > /dev/null 2>&1
-${ASDK}/apksigner sign --ks ${KEYSTORE} --ks-key-alias ${KEY} --out deploy/kpclientd.apk deploy/kpclientd-release-aligned.apk
-
-if [ "$1" = "+deploy" ]; then
-    adb push deploy/kpclientd.apk /sdcard/Download
-    adb push ${APK_D} /sdcard/Download/kpclientd-debug.apk
+echo "Signing APKS..."
+if [ -e ${APK_R1} ]; then
+    ${ASDK}/zipalign -v 4 ${APK_R1} deploy/kpclientd-arm64-v8a-release-aligned.apk > /dev/null 2>&1
+    ${ASDK}/apksigner sign --ks ${KEYSTORE} --ks-key-alias ${KEY} --out deploy/kpclientd.arm64-v8a.apk deploy/kpclientd-arm64-v8a-release-aligned.apk
+    ls -l deploy/kpclientd.arm64-v8a.apk
 fi
+if [ -e ${APK_R2} ]; then
+    ${ASDK}/zipalign -v 4 ${APK_R2} deploy/kpclientd-x86_64-release-aligned.apk > /dev/null 2>&1
+    ${ASDK}/apksigner sign --ks ${KEYSTORE} --ks-key-alias ${KEY} --out deploy/kpclientd.x86_64.apk deploy/kpclientd-x86_64-release-aligned.apk
+    ls -l deploy/kpclientd.x86_64.apk
+fi
+
 exit 0

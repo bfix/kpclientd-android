@@ -6,6 +6,8 @@ build
 /work/
 /apk/app/release
 /apk/app/debug
+/apk/app/src/amd64/assets/
+/apk/app/src/arm64/assets/
 /apk/app/src/main/assets/kpclientd*
 /apk/gradle*
 /apk/local.properties
