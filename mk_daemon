@@ -8,29 +8,38 @@ KATZENPOST_REPO=/usr/local/src/katzenpost
 
 #-----------------------------------------------------------------------
 
-ARCH=${1:-arm64}
-BASE=$(realpath ./apk/app/src/main/assets)
-OUT=${BASE}/kpclientd
-
-pushd ${KATZENPOST_REPO} >/dev/null 2>&1
+ARCH=${1:-all}
+SRC=$(realpath ./apk/app/src)
+OUT=${SRC}/${ARCH}/assets/kpclientd
 rm -f ${OUT}
+
 case ${ARCH} in
+    all)
+        $0 arm64
+        $0 amd64
+        exit 0
+        ;;
     arm64)
+        pushd ${KATZENPOST_REPO} >/dev/null 2>&1
         export NDK_CC=${ASDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android34-clang
         export GOTOOLCHAIN=local
         go mod verify
         CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=${NDK_CC} go build \
             -trimpath -buildvcs=false \
             -ldflags="-s -w -buildid= -extldflags=-Wl,--build-id=none" \
-            -o ${OUT} ./cmd/kpclientd
+            -a -o ${OUT} ./cmd/kpclientd
         popd >/dev/null 2>&1
         ;;
     amd64)
-        export NDK_CC=${ASDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android28-clang
-        CGO_ENABLED=1 GOOS=android GOARCH=amd64 CC=${NDK_CC} CGO_LDFLAGS="-Wl,--allow-shlib-undefined" \
-            go build -buildmode=pie -o ${OUT} ./cmd/kpclientd
+        pushd ${KATZENPOST_REPO} >/dev/null 2>&1
+        export NDK_CC=${ASDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android34-clang
+        export GOTOOLCHAIN=local
+        go mod verify
+        CGO_ENABLED=1 GOOS=android GOARCH=amd64 CC=${NDK_CC} go build -buildmode=pie \
+            -trimpath -buildvcs=false \
+            -ldflags="-s -w -buildid= -extldflags=-Wl,--build-id=none" \
+            -a -o ${OUT} ./cmd/kpclientd
         popd >/dev/null 2>&1
         ;;
 esac
 [ -e ${OUT} ] && ls -l ${OUT}
-
